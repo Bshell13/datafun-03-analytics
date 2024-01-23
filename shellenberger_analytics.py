@@ -77,7 +77,8 @@ def write_txt_file(folder_name, filename, txt_data):
     :param filename: Name of the file to save the data to
     :param data: Text data to write to the file
     '''
-    file_path = Path(folder_name).join_path(filename) # use pathlib to join paths
+    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
     with file_path.open('w') as file:
         file.write(txt_data)
         print(f"Text data saved to {file_path}")
@@ -90,7 +91,8 @@ def write_excel_file(folder_name, filename, excel_data):
     :param filename: Name of the file to save the data to
     :param data: Excel data to write to the file
     '''
-    file_path = Path(folder_name).join_path(filename) # use pathlib to join paths
+    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
     with open(file_path, 'wb') as file:
         file.write(excel_data)
         print(f"Excel data saved to {file_path}")
@@ -102,7 +104,8 @@ def write_csv_file(folder_name, filename, csv_data):
     :param filename: Name of the file to save the data to
     :param data: CSV data to write to the file
     '''
-    file_path = Path(folder_name).join_path(filename) # use pathlib to join paths
+    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
     with file_path.open('w') as file:
         file.write(csv_data)
         print(f"Text data saved to {file_path}")
@@ -114,7 +117,8 @@ def write_json_file(folder_name, filename, json_data):
     :param filename: Name of the file to save the data to
     :param data: JSON data to write to the file
     '''
-    file_path = Path(folder_name).join_path(filename) # use pathlib to join paths
+    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
     with file_path.open('w') as file:
         file.write(json_data)
         print(f"Text data saved to {file_path}")
@@ -128,9 +132,9 @@ def main():
     '''
     print(f"Name:  {utils.company_name}")
     
-    url_text = "https://shakespeare.mit.edu/comedy_errors/full.html"
+    url_text = "insert excel url here"
     url_excel = "insert excel url here"
-    url_csv = "insert csv url here"
+    url_csv = "https://raw.githubusercontent.com/sdiehl28/baseball-analytics/master/data/retrosheet/nb_data/fangraphs.csv"
     url_json = "insert json url here"
     
     txt_folder_name = "data-txt"
@@ -143,9 +147,9 @@ def main():
     csv_filename = 'data.csv'
     json_filename = 'data.json'
     
-    fetch_and_write_txt_data(txt_folder_name, txt_filename, url_text)
+    #fetch_and_write_txt_data(txt_folder_name, txt_filename, url_text)
     #fetch_and_write_excel_data(excel_folder_name, excel_filename, url_excel)
-    #fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
+    fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
     #fetch_and_write_json_data(json_folder_name, json_filename, url_json)
 
 

@@ -128,7 +128,7 @@ def main():
     '''
     print(f"Name:  {utils.company_name}")
     
-    url_text = "insert text url here"
+    url_text = "https://shakespeare.mit.edu/comedy_errors/full.html"
     url_excel = "insert excel url here"
     url_csv = "insert csv url here"
     url_json = "insert json url here"
@@ -144,9 +144,9 @@ def main():
     json_filename = 'data.json'
     
     fetch_and_write_txt_data(txt_folder_name, txt_filename, url_text)
-    fetch_and_write_excel_data(excel_folder_name, excel_filename, url_excel)
-    fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
-    fetch_and_write_json_data(json_folder_name, json_filename, url_json)
+    #fetch_and_write_excel_data(excel_folder_name, excel_filename, url_excel)
+    #fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
+    #fetch_and_write_json_data(json_folder_name, json_filename, url_json)
 
 
 

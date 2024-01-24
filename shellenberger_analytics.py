@@ -8,6 +8,7 @@ For every data file, there will be a quick statistical analysis that will be rec
 # python standard library imports
 import csv
 from pathlib import Path
+import re
 
 # import from virtual environment
 import requests
@@ -18,19 +19,23 @@ import shellenberger_projsetup as projsetup
 
 # Defining all the functions
     
-def fetch_txt_data(folder_name, url):
+def fetch_and_write_txt_data(folder_name, filename, url):
+    '''
+    Fetchs text data from a URL and writes it to a file.
+    Displays different exceptions if an error is encountered.
+    :param folder_name: Name of the folder to save the data to
+    :param filename: Name of the file to save the data to
+    :param url: URL to fetch the data from
+    '''
     try:
-        response = requests.get(url)
-        response.raise_for_status()  
-        # Will raise an HTTPError 
-        # if the HTTP request returns an unsuccessful status code
-
-        # Assuming the response content is text data
-        file_path = Path(folder_name) / 'data.txt'
-        with open(file_path, 'w') as file:
-            file.write(response.text)
-        print(f"Text data saved to {file_path}")
-
+        response = requests.get(url) # retrieves data from url text
+        response.raise_for_status()
+        Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+        file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
+        with file_path.open('w') as file:
+            file.write(response.text.lower())
+            print(f"Text data saved to {file_path}")
+    
     except requests.exceptions.HTTPError as errh:
         print(f"Http Error: {errh}")
     except requests.exceptions.ConnectionError as errc:
@@ -42,22 +47,26 @@ def fetch_txt_data(folder_name, url):
     except IOError as e:
         print(f"I/O error({e.errno}): {e.strerror}")
 
-def fetch_and_write_txt_data(folder_name, filename, url):
+def process_txt_data(folder_name, filename, results):
     '''
-    Fetchs text data from a URL and writes it to a file.
-    :param folder_name: Name of the folder to save the data to
-    :param filename: Name of the file to save the data to
-    :param url: URL to fetch the data from
+    Processes the data.txt file and outputs a txt file that is a word counter.
+    :param folder_name: Name of the folder to find the file
+    :param filename: Name of the file to open
+    :param results: Name of the file to save the statistical analysis to
     '''
-    response = requests.get(url) # retrieves data from url text
-    if response.status_code == 200:
-        Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
-        file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
-        with file_path.open('w') as file:
-            file.write(response.text)
-            print(f"Text data saved to {file_path}")
-    else:
-        print(f"Failed to fetch data: {response.status_code}")
+    with open(Path(folder_name).joinpath(filename), 'r') as file:
+        words = file.read().split() # splits text into words
+        unique_words = {}
+        for word in words:
+            word = re.sub('[,()?.\"\';!-]', '', word)
+            if word in unique_words:
+                unique_words[word] += 1
+            else:
+                unique_words[word] = 1
+        with open(results, 'w') as file:
+            for key, value in unique_words.items():
+                file.write(f"The word {key} appears {value} times.\n")
+    
 
 def fetch_and_write_excel_data(folder_name, filename, url):
     '''
@@ -112,6 +121,8 @@ def fetch_and_write_json_data(folder_name, filename, url):
 
 
 
+
+
 def main():
     '''
     Main function
@@ -133,11 +144,15 @@ def main():
     csv_filename = 'data.csv'
     json_filename = 'data.json'
     
-    fetch_and_write_txt_data(txt_folder_name, txt_filename, url_text)
-    fetch_and_write_excel_data(excel_folder_name, excel_filename, url_excel)
-    fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
-    fetch_and_write_json_data(json_folder_name, json_filename, url_json)
+    #fetch_and_write_txt_data(txt_folder_name, txt_filename, url_text)
+    #fetch_and_write_excel_data(excel_folder_name, excel_filename, url_excel)
+    #fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
+    #fetch_and_write_json_data(json_folder_name, json_filename, url_json)
 
+    process_txt_data(txt_folder_name, txt_filename, 'results_txt.txt')
+    #process_excel_data(excel_folder_name, excel_filename, 'results_excel.txt')
+    #process_csv_data(csv_folder_name, csv_filename, 'results_csv.txt')
+    #process_json_data(json_folder_name, json_filename, 'results_json.txt')
 
 
 # conditional execution

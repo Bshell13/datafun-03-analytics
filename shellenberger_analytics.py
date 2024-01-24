@@ -17,6 +17,30 @@ import shellenberger_utils as utils
 import shellenberger_projsetup as projsetup
 
 # Defining all the functions
+    
+def fetch_txt_data(folder_name, url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        # Will raise an HTTPError 
+        # if the HTTP request returns an unsuccessful status code
+
+        # Assuming the response content is text data
+        file_path = Path(folder_name) / 'data.txt'
+        with open(file_path, 'w') as file:
+            file.write(response.text)
+        print(f"Text data saved to {file_path}")
+
+    except requests.exceptions.HTTPError as errh:
+        print(f"Http Error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        print(f"Error Connecting: {errc}")
+    except requests.exceptions.Timeout as errt:
+        print(f"Timeout Error: {errt}")
+    except requests.exceptions.RequestException as err:
+        print(f"Oops: Something Else: {err}")
+    except IOError as e:
+        print(f"I/O error({e.errno}): {e.strerror}")
 
 def fetch_and_write_txt_data(folder_name, filename, url):
     '''
@@ -27,7 +51,11 @@ def fetch_and_write_txt_data(folder_name, filename, url):
     '''
     response = requests.get(url) # retrieves data from url text
     if response.status_code == 200:
-        write_txt_file(folder_name, filename, response.text)
+        Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+        file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
+        with file_path.open('w') as file:
+            file.write(response.text)
+            print(f"Text data saved to {file_path}")
     else:
         print(f"Failed to fetch data: {response.status_code}")
 
@@ -40,7 +68,11 @@ def fetch_and_write_excel_data(folder_name, filename, url):
     '''
     response = requests.get(url) # retrieves data from url Excel
     if response.status_code == 200:
-        write_excel_file(folder_name, filename, response.content)
+        Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+        file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
+        with open(file_path, 'wb') as file:
+            file.write(response.content)
+            print(f"Excel data saved to {file_path}")
     else:
         print(f"Failed to fetch Excel data: {response.status_code}")
 
@@ -53,7 +85,11 @@ def fetch_and_write_csv_data(folder_name, filename, url):
     '''
     response = requests.get(url) # retrieves data from url text
     if response.status_code == 200:
-        write_csv_file(folder_name, filename, response.text)
+        Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+        file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
+        with file_path.open('w') as file:
+            file.write(response.text)
+            print(f"CSV data saved to {file_path}")
     else:
         print(f"Failed to fetch data: {response.status_code}")
 
@@ -66,63 +102,13 @@ def fetch_and_write_json_data(folder_name, filename, url):
     '''
     response = requests.get(url) # retrieves data from url text
     if response.status_code == 200:
-        write_json_file(folder_name, filename, response.text)
+        Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
+        file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
+        with file_path.open('w') as file:
+            file.write(response.text)
+            print(f"JSON data saved to {file_path}")
     else:
         print(f"Failed to fetch data: {response.status_code}")
-
-def write_txt_file(folder_name, filename, txt_data):
-    '''
-    writes text data to a file.
-    :param folder_name: Name of the folder to save the data to
-    :param filename: Name of the file to save the data to
-    :param data: Text data to write to the file
-    '''
-    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
-    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
-    with file_path.open('w') as file:
-        file.write(txt_data)
-        print(f"Text data saved to {file_path}")
-
-
-def write_excel_file(folder_name, filename, excel_data):
-    '''
-    writes Excel data to a file.
-    :param folder_name: Name of the folder to save the data to
-    :param filename: Name of the file to save the data to
-    :param data: Excel data to write to the file
-    '''
-    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
-    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
-    with open(file_path, 'wb') as file:
-        file.write(excel_data)
-        print(f"Excel data saved to {file_path}")
-
-def write_csv_file(folder_name, filename, csv_data):
-    '''
-    writes CSV data to a file.
-    :param folder_name: Name of the folder to save the data to
-    :param filename: Name of the file to save the data to
-    :param data: CSV data to write to the file
-    '''
-    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
-    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
-    with file_path.open('w') as file:
-        file.write(csv_data)
-        print(f"Text data saved to {file_path}")
-
-def write_json_file(folder_name, filename, json_data):
-    '''
-    writes JSON data to a file.
-    :param folder_name: Name of the folder to save the data to
-    :param filename: Name of the file to save the data to
-    :param data: JSON data to write to the file
-    '''
-    Path(folder_name).mkdir(parents=True, exist_ok=True) # create folder if it doesn't
-    file_path = Path(folder_name).joinpath(filename) # use pathlib to join paths
-    with file_path.open('w') as file:
-        file.write(json_data)
-        print(f"Text data saved to {file_path}")
-
 
 
 
@@ -132,10 +118,10 @@ def main():
     '''
     print(f"Name:  {utils.company_name}")
     
-    url_text = "insert excel url here"
-    url_excel = "insert excel url here"
+    url_text = "https://storage.googleapis.com/kagglesdsdata/datasets/463494/941394/Shakespeare_01.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20240124%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20240124T015418Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=5d0da122a3e4c7a356b8d4940847e96cc92e695cbd330044d29cc7a752d7810001753662bacdf25b21bfe4d0d3ff633a4b8f3f1ef23bd68afbdbecaa210e4b5f6c6a4614b940fcdc0beded8079a2829c3c38d860b46080222d9262db2f0f1954678287bcbafdf881e757ac9c106c1f271e63859ee5a790d3efa4a678933f11905932e44d61107699118e2bec17cdc8126c8437d422e7239000b9a32c66ee2ad253122c4be55e0ad73265a4fc55b6a3d453ab4bf1e2b82a55b1379bf33818a2cea0acf439669257e3058c7193047714e74a196efeb2eff7fddbed73a14dd22ba99f029f0dca5f55db2796fec7b6e67f33786af37d1781769f75946bc9f791323e"
+    url_excel = "https://github.com/mikeygman11/Baseball-Statistics/raw/master/2019mlb.xlsx"
     url_csv = "https://raw.githubusercontent.com/sdiehl28/baseball-analytics/master/data/retrosheet/nb_data/fangraphs.csv"
-    url_json = "insert json url here"
+    url_json = "https://storage.googleapis.com/kagglesdsdata/datasets/496274/945103/StadiumsFull.json?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20240124%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20240124T021508Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=71e775d54b626f4f795aeebb70198e1dad862cb099ea8401a2c8657c507a3040d847a2288ba19b9d37adc9183e978c993c7cf4f7c355ca633c08dcd0d8fa655dc37b8b82a3cf06c23aee21e0452af773f2b2d0fcf19465f682b63d3bb664c88a9ef121685bf163b8291150848dace19a7aa2ecc2507e401d18e81c316a7c7acd61a7ceecbfd3162058bdf3f6065bfc6154e59e7059e38da497d0e638398a34544eff4b32f3255cea82868fa9b3f5fe394abe6ba914489329451dafc667db827161905aa497fc971544cb2b4bf283c9c6e86c7c05bbdb02d00a4be86c127da101aad3a01c1ae6772a1d2518774a284b2b1da3dc3c8398770d749b3a000a348ba0"
     
     txt_folder_name = "data-txt"
     excel_folder_name = "data-excel"
@@ -147,10 +133,10 @@ def main():
     csv_filename = 'data.csv'
     json_filename = 'data.json'
     
-    #fetch_and_write_txt_data(txt_folder_name, txt_filename, url_text)
-    #fetch_and_write_excel_data(excel_folder_name, excel_filename, url_excel)
+    fetch_and_write_txt_data(txt_folder_name, txt_filename, url_text)
+    fetch_and_write_excel_data(excel_folder_name, excel_filename, url_excel)
     fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
-    #fetch_and_write_json_data(json_folder_name, json_filename, url_json)
+    fetch_and_write_json_data(json_folder_name, json_filename, url_json)
 
 
 

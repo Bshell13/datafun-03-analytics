@@ -55,19 +55,18 @@ def process_txt_data(folder_name, filename, results):
     :param results: Name of the file to save the statistical analysis to
     '''
     with open(Path(folder_name).joinpath(filename), 'r') as file:
-        words = file.read().split() # splits text into words
-        unique_words = {}
-        for word in words:
-            word = re.sub('[,()?.\"\';!-]', '', word)
-            if word in unique_words:
-                unique_words[word] += 1
-            else:
-                unique_words[word] = 1
-        with open(results, 'w') as file:
-            for key, value in unique_words.items():
-                file.write(f"The word {key} appears {value} times.\n")
+        raw_words = file.read().split() # splits text into strings
+    words = [] # Empty list to store words without non-word characters
+    for word in raw_words:
+        word = re.sub('[,()?.\";!-]', '', word) # removes non-word characters from each word
+        word = word.lower() # converts each word to lowercase
+        words.append(word)
+        unique_words = set(words) # set to store unique words
+    with open(results, 'w') as file:
+        file.write(f"Unique words: {len(unique_words)}\n")
+        for word in unique_words:
+            file.write(f"The word {word} appears {words.count(word)} times.\n")
     
-
 def fetch_and_write_excel_data(folder_name, filename, url):
     '''
     Fetchs Excel data from a URL and writes it to a file.

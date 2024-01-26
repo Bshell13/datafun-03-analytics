@@ -1,8 +1,8 @@
 '''
 This is a script to fetch data from a URL and write it to a file.
 There are 4 types of data being used: Text, Excel, CSV, and JSON.
-In the main function will be the folder_name, filename, and url to store each data file.
-For every data file, there will be a quick statistical analysis that will be recored as a text file.
+In the main function will hold the folder_name, filename, and url to store each data file.
+For every data file, there will be a simple statistical analysis that will be recored as a text file.
 '''
 
 # python standard library imports
@@ -15,16 +15,18 @@ import re
 import requests
 import pandas as pd
 import numpy as np
+import xlrd
 
 # local module imports
 import shellenberger_utils as utils
 import shellenberger_projsetup as projsetup
 
+
 # Defining all the functions
     
 def fetch_and_write_txt_data(folder_name:str, filename: str, url: str):
     '''
-    Fetchs text data from a URL and writes it to a file.
+    Fetch text data from a URL and writes it to a file.
     Displays different exceptions if an error is encountered.
     :param folder_name: Name of the folder to save the data to
     :param filename: Name of the file to save the data to
@@ -52,7 +54,7 @@ def fetch_and_write_txt_data(folder_name:str, filename: str, url: str):
 
 def process_txt_data(folder_name: str, filename: str, results):
     '''
-    Processes the data.txt file and outputs a txt file that is a word counter.
+    Processes the data.txt file and outputs a txt file that is a unique word counter.
     :param folder_name: Name of the folder to find the file
     :param filename: Name of the file to open
     :param results: Name of the file to save the statistical analysis to
@@ -72,7 +74,7 @@ def process_txt_data(folder_name: str, filename: str, results):
     
 def fetch_and_write_excel_data(folder_name: str, filename: str, url: str):
     '''
-    Fetchs Excel data from a URL and writes it to a file.
+    Fetch Excel data from a URL and writes it to a file.
     :param folder_name: Name of the folder to save the data to
     :param filename: Name of the file to save the data to
     :param url: URL to fetch the data from
@@ -89,12 +91,15 @@ def fetch_and_write_excel_data(folder_name: str, filename: str, url: str):
 
 def process_excel_data(folder_name: str, filename: str, results: str):
     '''
-    Processes the Excel data for descriptions
+    Processes the data.excel file and outputs a txt file of the players age description.
     :param folder_name: Name of the folder to find the file
     :param filename: Name of the file to open
     :param results: Name of the file to save the statistical analysis to
     '''
+    # Read the Excel file to a dataframe
     excel_data_df = pd.read_excel(Path(folder_name).joinpath(filename))
+    
+    # Set player ages to integers
     excel_data_df.player_age = excel_data_df.player_age.astype(int)
     
     with open(Path(folder_name).joinpath(results), 'w') as file:
@@ -103,7 +108,7 @@ def process_excel_data(folder_name: str, filename: str, results: str):
 
 def fetch_and_write_csv_data(folder_name: str, filename: str, url: str):
     '''
-    Fetchs CSV data from a URL and writes it to a file.
+    Fetch CSV data from a URL and writes it to a file.
     :param folder_name: Name of the folder to save the data to
     :param filename: Name of the file to save the data to
     :param url: URL to fetch the data from
@@ -120,7 +125,7 @@ def fetch_and_write_csv_data(folder_name: str, filename: str, url: str):
 
 def process_csv_data(folder_name: str, filename: str, results: str):
     '''
-    Processes the data.csv file and outputs a txt file that is a counter.
+    Processes the data.csv file and outputs a txt file that shows the number of stadiums in a state as a percentage.
     :param folder_name: Name of the folder to find the file
     :param filename: Name of the file to open
     :param results: Name of the file to save the statistical analysis to
@@ -129,23 +134,24 @@ def process_csv_data(folder_name: str, filename: str, results: str):
         reader = csv.reader(file, delimiter= ',')
         headers = next(reader) # skip header
         
-        total_rows = 0
+        total_rows = 0 # total number of stadiums in the file
         states = {}
         
         for row in reader:
             total_rows += 1
-            if row[4] in states:
+            if row[4] in states: # if the state already exists, increment the count of the state
                 states[row[4]] += 1
             else:
                 states[row[4]] = 1
+        
         with open(Path(folder_name).joinpath(results), 'w') as file:
             file.write(f"Total Stadiums: {total_rows}\n")
-            for state, count in states.items():
+            for state, count in states.items(): # splits the key and value of the dictionary
                 file.write(f"The state {state} has {round((count/total_rows) * 100, 1)}% of the total statdiums.\n")
 
 def fetch_and_write_json_data(folder_name: str, filename: str, url: str):
     '''
-    Fetchs JSON data from a URL and writes it to a file.
+    Fetch JSON data from a URL and writes it to a file.
     :param folder_name: Name of the folder to save the data to
     :param filename: Name of the file to save the data to
     :param url: URL to fetch the data from
@@ -162,7 +168,8 @@ def fetch_and_write_json_data(folder_name: str, filename: str, url: str):
 
 def process_json_data(folder_name: str, filename: str, results: str):
     '''
-    processes the data.json file and outputs a txt file
+    Processes the data.json file and outputs a txt file that
+    averages the distance of each stadium to all other stadiums.
     :param folder_name: Name of the folder to find the file
     :param filename: Name of the file to open
     :param results: Name of the file to save the statistical analysis to
@@ -172,20 +179,21 @@ def process_json_data(folder_name: str, filename: str, results: str):
     
     stadium_data['AverageDistance'] = []
     for value in stadium_data['DistanceMatrix']:
-        stadium_data['AverageDistance'].append(round(sum(value)/(len(value) - 1), 2))
+        stadium_data['AverageDistance'].append(round(sum(value)/(len(value) - 1), 2)) 
     
-    count = 0
+    count = 0 # helps match stadium values with average distance values
+    
     with open(Path(folder_name).joinpath(results), 'w') as file:
         for stadium in stadium_data['Stadiums']:
             file.write(f"{stadium} is on average {stadium_data['AverageDistance'][count]} miles away from any other stadium.\n")
             count += 1
         
         
-
-
 def main():
     '''
     Main function
+    Fetching data from web sources and processing them for statistical analysis.
+    Writes the statistical analysis to a txt file.
     '''
     print(f"Name:  {utils.company_name}")
     

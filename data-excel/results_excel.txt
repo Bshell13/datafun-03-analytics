@@ -1,7 +1,10 @@
-Number of players: 156
-Average age of players: 28.69
-Median age of players: 28.0
-Max age of players: 39
-Min age of players: 20
-Standard deviation of age of players: 3.64
-Variance of age of players: 13.22
+2019 Player Age Description: 
+count    156.000000
+mean      28.685897
+std        3.636383
+min       20.000000
+25%       26.000000
+50%       28.000000
+75%       31.000000
+max       39.000000
+Name: player_age, dtype: float64

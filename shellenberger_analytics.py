@@ -7,6 +7,7 @@ For every data file, there will be a quick statistical analysis that will be rec
 
 # python standard library imports
 import csv
+import json
 from pathlib import Path
 import re
 import math
@@ -17,7 +18,6 @@ import requests
 import logging
 import pandas as pd
 import numpy as np
-
 
 # local module imports
 import shellenberger_utils as utils
@@ -91,27 +91,18 @@ def fetch_and_write_excel_data(folder_name: str, filename: str, url: str):
         print(f"Failed to fetch Excel data: {response.status_code}")
 
 def process_excel_data(folder_name: str, filename: str, results: str):
-    
+    '''
+    Processes the Excel data for descriptions
+    :param folder_name: Name of the folder to find the file
+    :param filename: Name of the file to open
+    :param results: Name of the file to save the statistical analysis to
+    '''
     excel_data_df = pd.read_excel(Path(folder_name).joinpath(filename))
     excel_data_df.player_age = excel_data_df.player_age.astype(int)
     
-    number_of_players = excel_data_df.player_age.count()
-    average_age_players = round(excel_data_df.player_age.mean(), 2)
-    median_age_players = excel_data_df.player_age.median()
-    max_age_players = excel_data_df.player_age.max()
-    min_age_players = excel_data_df.player_age.min()
-    std_age_players = round(excel_data_df.player_age.std(), 2)
-    vars_age_players = round(excel_data_df.player_age.var(), 2)
-    
     with open(Path(folder_name).joinpath(results), 'w') as file:
-        file.write(f"Number of players: {number_of_players}\n"
-                   f"Average age of players: {average_age_players}\n"
-                   f"Median age of players: {median_age_players}\n"
-                   f"Max age of players: {max_age_players}\n"
-                   f"Min age of players: {min_age_players}\n"
-                   f"Standard deviation of age of players: {std_age_players}\n"
-                   f"Variance of age of players: {vars_age_players}\n")
-
+        file.write(f'2019 Player Age Description: \n'
+                   f'{excel_data_df.player_age.describe()}')
 
 def fetch_and_write_csv_data(folder_name: str, filename: str, url: str):
     '''
@@ -155,9 +146,6 @@ def process_csv_data(folder_name: str, filename: str, results: str):
             for state, count in states.items():
                 file.write(f"The state {state} has {round((count/total_rows) * 100, 1)}% of the total statdiums.\n")
 
-
-
-
 def fetch_and_write_json_data(folder_name: str, filename: str, url: str):
     '''
     Fetchs JSON data from a URL and writes it to a file.
@@ -175,7 +163,22 @@ def fetch_and_write_json_data(folder_name: str, filename: str, url: str):
     else:
         print(f"Failed to fetch data: {response.status_code}")
 
-
+def process_json_data(folder_name: str, filename: str, results: str):
+    
+    with open(Path(folder_name).joinpath(filename), 'r') as file:
+        stadium_data = dict(json.load(file))
+    
+    stadium_data['AverageDistance'] = []
+    for value in stadium_data['DistanceMatrix']:
+        stadium_data['AverageDistance'].append(round(sum(value)/(len(value) - 1), 2))
+    
+    count = 0
+    with open(Path(folder_name).joinpath(results), 'w') as file:
+        for stadium in stadium_data['Stadiums']:
+            file.write(f"{stadium} is on average {stadium_data['AverageDistance'][count]} miles away from any other stadium.\n")
+            count += 1
+        
+        
 
 
 def main():
@@ -205,9 +208,9 @@ def main():
     #fetch_and_write_json_data(json_folder_name, json_filename, url_json)
 
     #process_txt_data(txt_folder_name, txt_filename, 'results_txt.txt')
-    process_excel_data(excel_folder_name, excel_filename, 'results_excel.txt')
+    #process_excel_data(excel_folder_name, excel_filename, 'results_excel.txt')
     #process_csv_data(csv_folder_name, csv_filename, 'results_csv.txt')
-    #process_json_data(json_folder_name, json_filename, 'results_json.txt')
+    process_json_data(json_folder_name, json_filename, 'results_json.txt')
 
 
 # conditional execution

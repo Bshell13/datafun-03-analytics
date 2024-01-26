@@ -1,0 +1,7 @@
+Number of players: 156
+Average age of players: 28.69
+Median age of players: 28.0
+Max age of players: 39
+Min age of players: 20
+Standard deviation of age of players: 3.64
+Variance of age of players: 13.22

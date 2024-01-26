@@ -18,6 +18,7 @@ import logging
 import pandas as pd
 import numpy as np
 
+
 # local module imports
 import shellenberger_utils as utils
 import shellenberger_projsetup as projsetup
@@ -88,6 +89,29 @@ def fetch_and_write_excel_data(folder_name: str, filename: str, url: str):
             print(f"Excel data saved to {file_path}")
     else:
         print(f"Failed to fetch Excel data: {response.status_code}")
+
+def process_excel_data(folder_name: str, filename: str, results: str):
+    
+    excel_data_df = pd.read_excel(Path(folder_name).joinpath(filename))
+    excel_data_df.player_age = excel_data_df.player_age.astype(int)
+    
+    number_of_players = excel_data_df.player_age.count()
+    average_age_players = round(excel_data_df.player_age.mean(), 2)
+    median_age_players = excel_data_df.player_age.median()
+    max_age_players = excel_data_df.player_age.max()
+    min_age_players = excel_data_df.player_age.min()
+    std_age_players = round(excel_data_df.player_age.std(), 2)
+    vars_age_players = round(excel_data_df.player_age.var(), 2)
+    
+    with open(Path(folder_name).joinpath(results), 'w') as file:
+        file.write(f"Number of players: {number_of_players}\n"
+                   f"Average age of players: {average_age_players}\n"
+                   f"Median age of players: {median_age_players}\n"
+                   f"Max age of players: {max_age_players}\n"
+                   f"Min age of players: {min_age_players}\n"
+                   f"Standard deviation of age of players: {std_age_players}\n"
+                   f"Variance of age of players: {vars_age_players}\n")
+
 
 def fetch_and_write_csv_data(folder_name: str, filename: str, url: str):
     '''
@@ -180,8 +204,8 @@ def main():
     #fetch_and_write_csv_data(csv_folder_name, csv_filename, url_csv)
     #fetch_and_write_json_data(json_folder_name, json_filename, url_json)
 
-    process_txt_data(txt_folder_name, txt_filename, 'results_txt.txt')
-    #process_excel_data(excel_folder_name, excel_filename, 'results_excel.txt')
+    #process_txt_data(txt_folder_name, txt_filename, 'results_txt.txt')
+    process_excel_data(excel_folder_name, excel_filename, 'results_excel.txt')
     #process_csv_data(csv_folder_name, csv_filename, 'results_csv.txt')
     #process_json_data(json_folder_name, json_filename, 'results_json.txt')
 
